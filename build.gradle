@@ -1,0 +1,61 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '2.7.17' // Java 11과 호환되는 최신 안정 버전 사용
+	id 'io.spring.dependency-management' version '1.0.15.RELEASE'
+}
+
+group = 'com.zerobase'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	sourceCompatibility = JavaVersion.VERSION_11
+	targetCompatibility = JavaVersion.VERSION_11
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	// Spring Boot 기본 의존성들
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa' // JPA 사용을 위한 스타터
+	implementation 'org.springframework.boot:spring-boot-starter-validation' // 데이터 유효성 검증
+	implementation 'org.springframework.boot:spring-boot-starter-web' // REST API 기능 제공
+
+	// Redis 관련 의존성
+	implementation 'org.redisson:redisson:3.17.1' // Redis 클라이언트
+	implementation('it.ozimov:embedded-redis:0.7.3') {
+		exclude group: "org.slf4j", module: "slf4j-simple" // 불필요한 로깅 라이브러리 제외
+	}
+
+	// Lombok을 사용하여 반복 코드 간소화
+	implementation 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+
+	// H2 데이터베이스 사용 (테스트용 내장형 DB)
+	runtimeOnly 'com.h2database:h2'
+
+	// Swagger 관련 의존성 (API 문서화)
+	implementation 'io.springfox:springfox-boot-starter:3.0.0'
+	implementation 'org.springdoc:springdoc-openapi-ui:1.6.15'
+
+
+	// 테스트 의존성
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+tasks.named('test') {
+	useJUnitPlatform() // JUnit 5 사용
+}
+
+tasks.withType(JavaCompile) {
+	// 컴파일러 설정 (인코딩 설정 및 경고 메시지 처리)
+	options.encoding = 'UTF-8'
+	options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+}
